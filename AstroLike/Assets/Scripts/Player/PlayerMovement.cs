@@ -32,22 +32,22 @@ public class PlayerMovement : MonoBehaviour
     private bool _canJumpFromPlatform => IsOnGround || IsOnLeftWall || IsOnRightWall;
     private bool _jumpToConsume = false;
     private bool _coyoteTimeJumpUsable = false;
-    private bool _hasJustJumped = false;
+    private bool _hasJustJumped = true;
     [SerializeField] private float _lowGravityTimer;
     [SerializeField] private float _lowGravityScale;
     private float _normalGravityScale;
 
 
     [Header("Collision Detection")]
-    private PlatformDetection leftDetection;
-    private PlatformDetection rightDetection;
-    private PlatformDetection downDetection;
+    [SerializeField] private PlatformDetection leftDetection;
+    [SerializeField] private PlatformDetection rightDetection;
+    [SerializeField] private PlatformDetection downDetection;
     // delegates
-    // is on platform
+    // -> is on platform
     private bool IsOnLeftWall => leftDetection._isGrounded;
     private bool IsOnRightWall => rightDetection._isGrounded;
     private bool IsOnGround => downDetection._isGrounded;
-    // has just left
+    // -> has just left
     private bool HasJustLeftLW
     {
         get { return leftDetection._hasJustLeftPlatform; }
@@ -76,26 +76,26 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (HasJustLeftGr)
+
+        if (HasJustLeftGr || HasJustLeftLW || HasJustLeftRW)
         {
-            // Do Check Has Just Jumped
+            if (!_hasJustJumped)
+                StartCoroutine(HandleCoyoteTime());
+            else _hasJustJumped = false;
+
+            HasJustLeftGr = false;
+            HasJustLeftLW = false;
+            HasJustLeftRW = false;
         }
-        if (HasJustLeftLW)
-        {
-            // Do Check Has Just Jumped
-        }
-        if (HasJustLeftRW)
-        {
-            // Do Check Has Just Jumped
-        }
+
+        if (IsOnGround || IsOnLeftWall || IsOnRightWall) _hasJustJumped = false;
     }
 
 
     void FixedUpdate()
     {
         GetComponent<SpriteRenderer>().color = IsOnGround || IsOnLeftWall || IsOnRightWall || _coyoteTimeJumpUsable ? Color.red : Color.blue;
-
-
+        // RIGHT / LEFT mov
         float horizontalMov = _playerDir == 0 ? 0.0f : _playerDir * _playerMovSpeed;
         _rb.velocity = new Vector2(horizontalMov, _rb.velocity.y);
     }
@@ -120,7 +120,9 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator HandleCoyoteTime()
     {
-        _rb.gravityScale = 0.0f;
+        Debug.Log("Coyote Time");
+        // _rb.gravityScale = 0.0f;
+        _rb.gravityScale = _lowGravityScale;
         _coyoteTimeJumpUsable = true;
 
         yield return new WaitForSeconds(_coyoteTime);
@@ -156,43 +158,13 @@ public class PlayerMovement : MonoBehaviour
     {
         _rb.gravityScale = _normalGravityScale;
 
+        Vector2 jumpDir = new Vector2(IsOnLeftWall ? 1 : (IsOnRightWall ? -1 : 0), 1);
 
-
-        _rb.AddForce(Vector2.up * _playerJumpForce, ForceMode2D.Impulse);
+        _rb.AddForce(jumpDir * _playerJumpForce, ForceMode2D.Impulse);
         _jumpToConsume = false;
         _hasJustJumped = true;
 
         StartCoroutine(HandleLowGravityAtJumpPeak());
-    }
-
-    // private void OnCollisionEnter2D(Collision2D other)
-    // {
-    //     if (other.gameObject.tag == "Platform")
-    //     {
-    //         _hasJustJumped = false;
-    //         _isGrounded = true;
-    //     }
-    // }
-
-    // private void OnCollisionStay2D(Collision2D other)
-    // {
-    //     if (other.gameObject.tag == "Platform")
-    //     {
-    //         _hasJustJumped = false;
-    //         _isGrounded = true;
-    //     }
-    // }
-
-    private void OnCollisionExit2D(Collision2D other)
-    {
-        if (other.gameObject.tag == "Platform")
-        {
-            // _isGrounded = false;
-
-            if (!_hasJustJumped)
-                StartCoroutine(HandleCoyoteTime());
-            else _hasJustJumped = false;
-        }
     }
 
 

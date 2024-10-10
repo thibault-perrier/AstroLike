@@ -65,7 +65,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.5412239, y: -0.05237788}
+  m_Offset: {x: 0.5412239, y: -0.01}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -91,6 +91,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isGrounded: 0
+  _hasJustLeftPlatform: 0
 --- !u!1 &5349016060510201241
 GameObject:
   m_ObjectHideFlags: 0
@@ -103,7 +104,7 @@ GameObject:
   - component: {fileID: 2036381439163555788}
   - component: {fileID: 364488076679454253}
   m_Layer: 0
-  m_Name: LeftChecker
+  m_Name: LeftWallChecker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -156,7 +157,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.5412239, y: -0.05237788}
+  m_Offset: {x: -0.5412239, y: -0.01}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -182,6 +183,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isGrounded: 0
+  _hasJustLeftPlatform: 0
 --- !u!1 &7014752256563666249
 GameObject:
   m_ObjectHideFlags: 0
@@ -258,7 +260,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.04}
+  m_Size: {x: 0.9, y: 0.04}
   m_EdgeRadius: 0
 --- !u!114 &1151926649267861899
 MonoBehaviour:
@@ -273,6 +275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isGrounded: 0
+  _hasJustLeftPlatform: 0
 --- !u!1 &9028994825717192903
 GameObject:
   m_ObjectHideFlags: 0
@@ -383,10 +386,13 @@ MonoBehaviour:
   _jumpDetectionRadius: 0.5
   _playerMovSpeed: 5
   _playerJumpForce: 8
-  _coyoteTime: 0.15
-  _jumpBufferTime: 0.15
-  _lowGravityTimer: 0.15
+  _coyoteTime: 0.1
+  _jumpBufferTime: 0.1
+  _lowGravityTimer: 0.1
   _lowGravityScale: 1
+  leftDetection: {fileID: 364488076679454253}
+  rightDetection: {fileID: 3583330335718312542}
+  downDetection: {fileID: 1151926649267861899}
 --- !u!50 &2314577453585057980
 Rigidbody2D:
   serializedVersion: 4
