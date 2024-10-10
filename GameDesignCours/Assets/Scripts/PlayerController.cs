@@ -7,7 +7,6 @@ public class PlayerController : MonoBehaviour
 
 
     private Vector3 movement;
-    Quaternion turn;
     private Rigidbody _rb;
     private Transform _transform;
 
@@ -67,6 +66,12 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        GameManager.instance.SetupGame(false);
+        if (other.gameObject.tag == "Coin")
+        {
+            Destroy(other.gameObject);
+            ShopManager.instance.GainCoin();
+        }
+        if (other.gameObject.tag == "Bounds")
+            GameManager.instance.SetupGame(false);
     }
 }

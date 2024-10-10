@@ -312,7 +312,7 @@ GameObject:
   - component: {fileID: 98370179}
   m_Layer: 0
   m_Name: Bounds (4)
-  m_TagString: Untagged
+  m_TagString: Bounds
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -691,7 +691,7 @@ GameObject:
   - component: {fileID: 575346846}
   m_Layer: 0
   m_Name: Bounds (2)
-  m_TagString: Untagged
+  m_TagString: Bounds
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1632,8 +1632,8 @@ Transform:
   m_GameObject: {fileID: 832601698}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4.4719, y: 0.68970114, z: 4.4719}
+  m_LocalPosition: {x: 0.0000012005, y: 0, z: 0}
+  m_LocalScale: {x: 10.067956, y: 0.68970114, z: 5.9401927}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1096473550}
@@ -1653,7 +1653,7 @@ GameObject:
   - component: {fileID: 904663767}
   m_Layer: 0
   m_Name: Bounds (1)
-  m_TagString: Untagged
+  m_TagString: Bounds
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2007,7 +2007,7 @@ MonoBehaviour:
   BotMovSpeed: 2
   BotRotSpeed: 50
   BotPushForce: 2
-  BotPushDist: 2
+  BotPushDist: 0.5
   ChosenBot: 0
 --- !u!1 &1096473549
 GameObject:
@@ -2162,7 +2162,7 @@ Transform:
   m_GameObject: {fileID: 1211913576}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 5.28, z: 0.12}
+  m_LocalPosition: {x: 0, y: 5.92, z: 0.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2352,7 +2352,8 @@ MonoBehaviour:
   EnemyPistonLvl: 1
   EnemyPushDist: 2
   EnemyPushCooldown: 2
-  player: {fileID: 1688247944}
+  _playerTransform: {fileID: 1688247944}
+  _botFOV: 27
 --- !u!1 &1479783540
 GameObject:
   m_ObjectHideFlags: 0
@@ -2536,6 +2537,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Coins: 10
+  _bounds:
+  - {fileID: 1681990950}
+  - {fileID: 372440128}
+  _minTimeBeforeCoinSpawn: 5
+  _maxTimeBeforeCoinSpawn: 10
+  _coinLifeTime: 3
+  _coinPrefab: {fileID: 8712956730196650238, guid: eb5cce6b9d0ef2149802c1608bd002e1, type: 3}
+  _minCoinValue: 2
+  _maxCoinValue: 10
+  _gameIsRunning: 0
 --- !u!1 &1557639563
 GameObject:
   m_ObjectHideFlags: 0
@@ -3062,8 +3073,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1826257722}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: PauseGame
-        m_Mode: 6
+        m_MethodName: StartRound
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3218,7 +3229,7 @@ GameObject:
   - component: {fileID: 1769783370}
   m_Layer: 0
   m_Name: Bounds (3)
-  m_TagString: Untagged
+  m_TagString: Bounds
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4085,6 +4096,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 5640047397211096019, guid: 1dd6271faa19c874b9ec69ae35324f74, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: a614b7015e649ad46a50818244962909, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4157,6 +4172,10 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 80
       objectReference: {fileID: 0}
+    - target: {fileID: 8248007003806592029, guid: cd646dbe9a5aaa442bf01e8004dc0e2c, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: a614b7015e649ad46a50818244962909, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

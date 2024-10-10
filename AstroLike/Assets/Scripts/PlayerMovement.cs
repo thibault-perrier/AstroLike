@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
@@ -10,8 +10,7 @@ public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D _rb;
     private BoxCollider2D _col;
-    private Vector3 _playerPos;
-    private RaycastHit2D hit;
+    public Vector3 _playerPos;
 
 
     [Header("Layers")]
@@ -30,13 +29,40 @@ public class PlayerMovement : MonoBehaviour
     [Header("Player Jump Stats")]
     [SerializeField] private float _coyoteTime;
     [SerializeField] private float _jumpBufferTime;
+    private bool _canJumpFromPlatform => IsOnGround || IsOnLeftWall || IsOnRightWall;
     private bool _jumpToConsume = false;
     private bool _coyoteTimeJumpUsable = false;
     private bool _hasJustJumped = false;
-    private bool _isGrounded = false;
     [SerializeField] private float _lowGravityTimer;
     [SerializeField] private float _lowGravityScale;
     private float _normalGravityScale;
+
+
+    [Header("Collision Detection")]
+    private PlatformDetection leftDetection;
+    private PlatformDetection rightDetection;
+    private PlatformDetection downDetection;
+    // delegates
+    // is on platform
+    private bool IsOnLeftWall => leftDetection._isGrounded;
+    private bool IsOnRightWall => rightDetection._isGrounded;
+    private bool IsOnGround => downDetection._isGrounded;
+    // has just left
+    private bool HasJustLeftLW
+    {
+        get { return leftDetection._hasJustLeftPlatform; }
+        set { leftDetection._hasJustLeftPlatform = value; }
+    }
+    private bool HasJustLeftRW
+    {
+        get { return rightDetection._hasJustLeftPlatform; }
+        set { rightDetection._hasJustLeftPlatform = value; }
+    }
+    private bool HasJustLeftGr
+    {
+        get { return downDetection._hasJustLeftPlatform; }
+        set { downDetection._hasJustLeftPlatform = value; }
+    }
 
 
     void Start()
@@ -48,10 +74,26 @@ public class PlayerMovement : MonoBehaviour
         _normalGravityScale = _rb.gravityScale;
     }
 
+    void Update()
+    {
+        if (HasJustLeftGr)
+        {
+            // Do Check Has Just Jumped
+        }
+        if (HasJustLeftLW)
+        {
+            // Do Check Has Just Jumped
+        }
+        if (HasJustLeftRW)
+        {
+            // Do Check Has Just Jumped
+        }
+    }
+
 
     void FixedUpdate()
     {
-        GetComponent<SpriteRenderer>().color = _isGrounded || _coyoteTimeJumpUsable ? Color.red : Color.blue;
+        GetComponent<SpriteRenderer>().color = IsOnGround || IsOnLeftWall || IsOnRightWall || _coyoteTimeJumpUsable ? Color.red : Color.blue;
 
 
         float horizontalMov = _playerDir == 0 ? 0.0f : _playerDir * _playerMovSpeed;
@@ -63,9 +105,10 @@ public class PlayerMovement : MonoBehaviour
         float timer = 0.0f;
         while ((timer += Time.deltaTime) < _jumpBufferTime)
         {
-            if (_jumpToConsume && _isGrounded)
+            if (_jumpToConsume && _canJumpFromPlatform)
             {
                 DoJump();
+                Debug.Log("JUMP BUFFER USED");
                 break;
             }
             yield return null;
@@ -82,17 +125,6 @@ public class PlayerMovement : MonoBehaviour
 
         yield return new WaitForSeconds(_coyoteTime);
 
-        // while ((timer += Time.deltaTime) < _coyoteTime)
-        // {
-        //     if (_jumpToConsume && !_isGrounded)
-        //     {
-        //         Debug.Log("COYOTE TIME");
-        //         DoJump();
-        //         break;
-        //     }
-        //     yield return null;
-        // }
-
         _rb.gravityScale = _normalGravityScale;
         _coyoteTimeJumpUsable = false;
         yield return null;
@@ -103,7 +135,7 @@ public class PlayerMovement : MonoBehaviour
         float t_vertex = _rb.velocity.y / (_gravityConstant * _lowGravityScale);
         float lowGStartTimer = t_vertex - (_lowGravityTimer / 2);
 
-        Debug.Log("t_vertex: " + t_vertex + ", low G (start, end) timer: (" + lowGStartTimer + ", " + (lowGStartTimer + _lowGravityTimer) + "). ");
+        // Debug.Log("t_vertex: " + t_vertex + ", low G (start, end) timer: (" + lowGStartTimer + ", " + (lowGStartTimer + _lowGravityTimer) + "). ");
         yield return new WaitForSeconds(lowGStartTimer);
         _rb.gravityScale = _lowGravityScale;
 
@@ -116,13 +148,16 @@ public class PlayerMovement : MonoBehaviour
     private void HandleJump()
     {
         _jumpToConsume = true;
-        if (_isGrounded || _coyoteTimeJumpUsable) DoJump();
-        else StartCoroutine(HandleJumpBuffer());
+        if (_canJumpFromPlatform || _coyoteTimeJumpUsable) DoJump();
+        else if (!_hasJustJumped) StartCoroutine(HandleJumpBuffer());
     }
 
     private void DoJump()
     {
         _rb.gravityScale = _normalGravityScale;
+
+
+
         _rb.AddForce(Vector2.up * _playerJumpForce, ForceMode2D.Impulse);
         _jumpToConsume = false;
         _hasJustJumped = true;
@@ -130,14 +165,14 @@ public class PlayerMovement : MonoBehaviour
         StartCoroutine(HandleLowGravityAtJumpPeak());
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        if (other.gameObject.tag == "Platform")
-        {
-            _hasJustJumped = false;
-            _isGrounded = true;
-        }
-    }
+    // private void OnCollisionEnter2D(Collision2D other)
+    // {
+    //     if (other.gameObject.tag == "Platform")
+    //     {
+    //         _hasJustJumped = false;
+    //         _isGrounded = true;
+    //     }
+    // }
 
     // private void OnCollisionStay2D(Collision2D other)
     // {
@@ -152,7 +187,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.gameObject.tag == "Platform")
         {
-            _isGrounded = false;
+            // _isGrounded = false;
 
             if (!_hasJustJumped)
                 StartCoroutine(HandleCoyoteTime());

@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     [Header("Upgrade buttons")]
     [SerializeField] private List<Button> upgradeButtons; // 0 is frame, 1 is motor, 2 is steering, 3 is piston
 
+
     private void Awake()
     {
         instance = this;
@@ -69,9 +70,16 @@ public class GameManager : MonoBehaviour
     }
 
 
+    public void StartRound()
+    {
+        PauseGame(false);
+        StartCoroutine(ShopManager.instance.RandomCoinGenerator());
+    }
+
     public void PauseGame(bool pauseGame)
     {
         Time.timeScale = pauseGame ? 0.0f : 1.0f;
+        ShopManager.instance._gameIsRunning = !pauseGame;
     }
 
     public void UpdateUI()
