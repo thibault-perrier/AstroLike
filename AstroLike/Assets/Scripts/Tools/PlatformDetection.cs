@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlatformDetection : MonoBehaviour
@@ -7,7 +8,7 @@ public class PlatformDetection : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Platform")
+        if (other.gameObject.CompareTag("Platform"))
         {
             _isGrounded = true;
             _hasJustLeftPlatform = false;
@@ -16,7 +17,7 @@ public class PlatformDetection : MonoBehaviour
 
     void OnTriggerStay2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Platform")
+        if (other.gameObject.CompareTag("Platform"))
         {
             _isGrounded = true;
             _hasJustLeftPlatform = false;
@@ -25,7 +26,7 @@ public class PlatformDetection : MonoBehaviour
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Platform")
+        if (other.gameObject.CompareTag("Platform"))
         {
             _isGrounded = false;
             _hasJustLeftPlatform = true;

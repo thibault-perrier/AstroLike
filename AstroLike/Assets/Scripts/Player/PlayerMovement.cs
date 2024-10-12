@@ -1,5 +1,4 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
@@ -8,6 +7,10 @@ using UnityEngine.InputSystem.Users;
 [RequireComponent(typeof(BoxCollider2D))]
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Multiplayer Settings")]
+    [SerializeField] private Sprite[] _charaSprites;
+
+
     private Rigidbody2D _rb;
     private BoxCollider2D _col;
     public Vector3 _playerPos;
@@ -32,22 +35,22 @@ public class PlayerMovement : MonoBehaviour
     private bool _canJumpFromPlatform => IsOnGround || IsOnLeftWall || IsOnRightWall;
     private bool _jumpToConsume = false;
     private bool _coyoteTimeJumpUsable = false;
-    private bool _hasJustJumped = false;
+    private bool _hasJustJumped = true;
     [SerializeField] private float _lowGravityTimer;
     [SerializeField] private float _lowGravityScale;
     private float _normalGravityScale;
 
 
     [Header("Collision Detection")]
-    private PlatformDetection leftDetection;
-    private PlatformDetection rightDetection;
-    private PlatformDetection downDetection;
+    [SerializeField] private PlatformDetection leftDetection;
+    [SerializeField] private PlatformDetection rightDetection;
+    [SerializeField] private PlatformDetection downDetection;
     // delegates
-    // is on platform
+    // -> is on platform
     private bool IsOnLeftWall => leftDetection._isGrounded;
     private bool IsOnRightWall => rightDetection._isGrounded;
     private bool IsOnGround => downDetection._isGrounded;
-    // has just left
+    // -> has just left
     private bool HasJustLeftLW
     {
         get { return leftDetection._hasJustLeftPlatform; }
@@ -76,38 +79,45 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (HasJustLeftGr)
+        Debug.Log(_rb.velocity.magnitude);
+        if (HasJustLeftGr || HasJustLeftLW || HasJustLeftRW)
         {
-            // Do Check Has Just Jumped
+            if (!_hasJustJumped)
+                StartCoroutine(HandleCoyoteTime());
+
+
+            HasJustLeftGr = false;
+            HasJustLeftLW = false;
+            HasJustLeftRW = false;
         }
-        if (HasJustLeftLW)
-        {
-            // Do Check Has Just Jumped
-        }
-        if (HasJustLeftRW)
-        {
-            // Do Check Has Just Jumped
-        }
+
+        // if (IsOnGround || IsOnLeftWall || IsOnRightWall) _hasJustJumped = false;
     }
 
 
     void FixedUpdate()
     {
-        GetComponent<SpriteRenderer>().color = IsOnGround || IsOnLeftWall || IsOnRightWall || _coyoteTimeJumpUsable ? Color.red : Color.blue;
-
-
+        // RIGHT / LEFT mov
         float horizontalMov = _playerDir == 0 ? 0.0f : _playerDir * _playerMovSpeed;
         _rb.velocity = new Vector2(horizontalMov, _rb.velocity.y);
     }
 
+    public bool _jumpBuffered = false;
+
     private IEnumerator HandleJumpBuffer()
     {
+        Debug.Log("START TO HANDLE JUMP BUFFER");
         float timer = 0.0f;
         while ((timer += Time.deltaTime) < _jumpBufferTime)
         {
-            if (_jumpToConsume && _canJumpFromPlatform)
+            if (_jumpToConsume) Debug.Log("jump to consume");
+            if (IsOnGround) Debug.Log("is on ground");
+
+            if (_jumpToConsume && IsOnGround)
             {
+                _jumpBuffered = true;
                 DoJump();
+                _jumpBuffered = false;
                 Debug.Log("JUMP BUFFER USED");
                 break;
             }
@@ -120,7 +130,9 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator HandleCoyoteTime()
     {
-        _rb.gravityScale = 0.0f;
+        Debug.Log("Coyote Time");
+        // _rb.gravityScale = 0.0f;
+        _rb.gravityScale = _lowGravityScale;
         _coyoteTimeJumpUsable = true;
 
         yield return new WaitForSeconds(_coyoteTime);
@@ -150,48 +162,36 @@ public class PlayerMovement : MonoBehaviour
         _jumpToConsume = true;
         if (_canJumpFromPlatform || _coyoteTimeJumpUsable) DoJump();
         else if (!_hasJustJumped) StartCoroutine(HandleJumpBuffer());
+        else Debug.Log("DID NOT DO ANYTHING");
     }
 
     private void DoJump()
     {
         _rb.gravityScale = _normalGravityScale;
+        _rb.velocity = new Vector2(_rb.velocity.x, 0);
 
+        Vector2 jumpDir = new Vector2(IsOnLeftWall ? 1 : (IsOnRightWall ? -1 : 0), 1);
 
-
-        _rb.AddForce(Vector2.up * _playerJumpForce, ForceMode2D.Impulse);
+        _rb.AddForce(jumpDir * _playerJumpForce, ForceMode2D.Impulse);
         _jumpToConsume = false;
         _hasJustJumped = true;
 
         StartCoroutine(HandleLowGravityAtJumpPeak());
     }
 
-    // private void OnCollisionEnter2D(Collision2D other)
-    // {
-    //     if (other.gameObject.tag == "Platform")
-    //     {
-    //         _hasJustJumped = false;
-    //         _isGrounded = true;
-    //     }
-    // }
-
-    // private void OnCollisionStay2D(Collision2D other)
-    // {
-    //     if (other.gameObject.tag == "Platform")
-    //     {
-    //         _hasJustJumped = false;
-    //         _isGrounded = true;
-    //     }
-    // }
-
-    private void OnCollisionExit2D(Collision2D other)
+    void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.tag == "Platform")
+        if (other.gameObject.CompareTag("Platform"))
         {
-            // _isGrounded = false;
+            _hasJustJumped = false;
+        }
+    }
 
-            if (!_hasJustJumped)
-                StartCoroutine(HandleCoyoteTime());
-            else _hasJustJumped = false;
+    private void OnCollisionStay2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Platform"))
+        {
+            _hasJustJumped = false;
         }
     }
 
@@ -221,6 +221,7 @@ public class PlayerMovement : MonoBehaviour
         if (context.performed)
         {
             Debug.Log("IS USING ATTACK 1");
+            GetComponent<SpriteRenderer>().sprite = _charaSprites[Random.Range(0, _charaSprites.Length)];
         }
     }
 
