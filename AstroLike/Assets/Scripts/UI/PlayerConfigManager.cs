@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,7 @@ public class PlayerConfigManager : MonoBehaviour
 
         if (_playerConfigs.Count >= _minPlayers && _playerConfigs.All(p => p.IsReady == true))
         {
-            SceneManager.LoadScene("Movement");
+            SceneManager.LoadScene("GameScene");
         }
     }
 

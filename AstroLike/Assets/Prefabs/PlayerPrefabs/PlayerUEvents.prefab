@@ -379,16 +379,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 071ff92a71f5ac6479ef802e5c1ad3a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _charaSprites:
-  - {fileID: 21300000, guid: 00d9380c6aa286e4ebe3e8cd1759c963, type: 3}
-  - {fileID: 21300000, guid: 2a807826e4e1c6f42a9a92e0c9455702, type: 3}
-  - {fileID: 21300000, guid: 80e0ab78085ac714c99ae191de5112a3, type: 3}
-  - {fileID: 21300000, guid: 9ca26a0a720c55c4f9c4c4b6367f5b5a, type: 3}
-  - {fileID: 21300000, guid: 61adcc1477f5d904e8ba5e782c024d10, type: 3}
-  - {fileID: 21300000, guid: 7bb93a8b5aa99e54699b1f46586fbf4e, type: 3}
-  - {fileID: 21300000, guid: 289bdb3c3cc969641afe4676eac87e7b, type: 3}
-  - {fileID: 21300000, guid: 71c611c4c7651ef4b899f171bdee5bcb, type: 3}
-  _playerPos: {x: 0, y: 0, z: 0}
+  _charaSprite: {fileID: 0}
   _groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -397,12 +388,11 @@ MonoBehaviour:
   _playerJumpForce: 8
   _coyoteTime: 0.1
   _jumpBufferTime: 0.1
-  _lowGravityTimer: 0.1
+  _maxYVelForZeroG: 0.1
   _lowGravityScale: 1
   leftDetection: {fileID: 364488076679454253}
   rightDetection: {fileID: 3583330335718312542}
   downDetection: {fileID: 1151926649267861899}
-  _jumpBuffered: 0
 --- !u!50 &2314577453585057980
 Rigidbody2D:
   serializedVersion: 4
