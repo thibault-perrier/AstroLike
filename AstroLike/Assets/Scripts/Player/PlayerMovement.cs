@@ -7,13 +7,15 @@ using UnityEngine.InputSystem.Users;
 [RequireComponent(typeof(BoxCollider2D))]
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Multiplayer Settings")]
-    [SerializeField] private Sprite[] _charaSprites;
+    #region Classic Variables
+    [Header("Sprites")]
+    [SerializeField] private Sprite _charaSprite;
 
 
     private Rigidbody2D _rb;
-    private BoxCollider2D _col;
-    public Vector3 _playerPos;
+    private Transform _playerTransform;
+    private Quaternion _playerRot;
+    private float XVel;
 
 
     [Header("Layers")]
@@ -21,13 +23,16 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Physics")]
     [SerializeField] private float _jumpDetectionRadius;
-    private float _gravityConstant = 9.81f;
+    // private float _gravityConstant = 9.81f;
 
 
     [Header("Player Movement Stats")]
     [SerializeField] private float _playerMovSpeed;
     [SerializeField] private float _playerJumpForce;
     private float _playerDir = 0.0f;
+
+    #endregion
+    #region Jump Variables
 
     [Header("Player Jump Stats")]
     [SerializeField] private float _coyoteTime;
@@ -36,10 +41,12 @@ public class PlayerMovement : MonoBehaviour
     private bool _jumpToConsume = false;
     private bool _coyoteTimeJumpUsable = false;
     private bool _hasJustJumped = true;
-    [SerializeField] private float _lowGravityTimer;
+    [SerializeField] private float _maxYVelForZeroG;
     [SerializeField] private float _lowGravityScale;
     private float _normalGravityScale;
 
+    #endregion
+    #region Collision Detection Variables
 
     [Header("Collision Detection")]
     [SerializeField] private PlatformDetection leftDetection;
@@ -67,19 +74,18 @@ public class PlayerMovement : MonoBehaviour
         set { downDetection._hasJustLeftPlatform = value; }
     }
 
+    #endregion
 
-    void Start()
+    void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _col = GetComponent<BoxCollider2D>();
-        _playerPos = transform.position;
+        _playerTransform = transform;
 
         _normalGravityScale = _rb.gravityScale;
     }
 
     void Update()
     {
-        Debug.Log(_rb.velocity.magnitude);
         if (HasJustLeftGr || HasJustLeftLW || HasJustLeftRW)
         {
             if (!_hasJustJumped)
@@ -89,9 +95,19 @@ public class PlayerMovement : MonoBehaviour
             HasJustLeftGr = false;
             HasJustLeftLW = false;
             HasJustLeftRW = false;
+
         }
 
         // if (IsOnGround || IsOnLeftWall || IsOnRightWall) _hasJustJumped = false;
+
+
+        XVel = _rb.velocity.x;
+        _playerRot = _playerTransform.rotation;
+
+        if (XVel > 0.0f) _playerRot.y = 0.0f;
+        else if (XVel < 0.0f) _playerRot.y = 180.0f;
+
+        _playerTransform.rotation = _playerRot;
     }
 
 
@@ -102,7 +118,7 @@ public class PlayerMovement : MonoBehaviour
         _rb.velocity = new Vector2(horizontalMov, _rb.velocity.y);
     }
 
-    public bool _jumpBuffered = false;
+    #region Jump Buffer
 
     private IEnumerator HandleJumpBuffer()
     {
@@ -110,14 +126,14 @@ public class PlayerMovement : MonoBehaviour
         float timer = 0.0f;
         while ((timer += Time.deltaTime) < _jumpBufferTime)
         {
-            if (_jumpToConsume) Debug.Log("jump to consume");
-            if (IsOnGround) Debug.Log("is on ground");
+            // if (_jumpToConsume) Debug.Log("jump to consume");
+            // if (IsOnGround) Debug.Log("is on ground");
 
             if (_jumpToConsume && IsOnGround)
             {
-                _jumpBuffered = true;
+                _jumpToConsume = false;
                 DoJump();
-                _jumpBuffered = false;
+
                 Debug.Log("JUMP BUFFER USED");
                 break;
             }
@@ -127,6 +143,9 @@ public class PlayerMovement : MonoBehaviour
         _jumpToConsume = false;
         yield return null;
     }
+
+    #endregion
+    #region Coyote Time
 
     private IEnumerator HandleCoyoteTime()
     {
@@ -142,19 +161,50 @@ public class PlayerMovement : MonoBehaviour
         yield return null;
     }
 
+    #endregion
+    #region Jump Physic
+
     private IEnumerator HandleLowGravityAtJumpPeak()
     {
-        float t_vertex = _rb.velocity.y / (_gravityConstant * _lowGravityScale);
-        float lowGStartTimer = t_vertex - (_lowGravityTimer / 2);
+        bool isOnLowG = false;
+        bool hasBeenOnLowG = false;
 
-        // Debug.Log("t_vertex: " + t_vertex + ", low G (start, end) timer: (" + lowGStartTimer + ", " + (lowGStartTimer + _lowGravityTimer) + "). ");
-        yield return new WaitForSeconds(lowGStartTimer);
-        _rb.gravityScale = _lowGravityScale;
+        while (true)
+        {
+            if (!hasBeenOnLowG || isOnLowG)
+            {
+                if (_rb.velocity.y < _maxYVelForZeroG && _rb.velocity.y > -_maxYVelForZeroG)
+                {
+                    _rb.gravityScale = _lowGravityScale;
 
-        yield return new WaitForSeconds(_lowGravityTimer);
-        _rb.gravityScale = _normalGravityScale;
+                    hasBeenOnLowG = true;
+                    isOnLowG = true;
+                }
+                else if (hasBeenOnLowG)
+                {
+                    isOnLowG = false;
+                }
+            }
+            else
+            {
+                _rb.gravityScale = _normalGravityScale;
+                yield break;
+            }
 
-        yield return null;
+            yield return null;
+        }
+
+        // float t_vertex = _rb.velocity.y / (_gravityConstant * _lowGravityScale);
+        // float lowGStartTimer = t_vertex - (_lowGravityTimer / 2);
+
+        // // Debug.Log("t_vertex: " + t_vertex + ", low G (start, end) timer: (" + lowGStartTimer + ", " + (lowGStartTimer + _lowGravityTimer) + "). ");
+        // yield return new WaitForSeconds(lowGStartTimer);
+        // _rb.gravityScale = _lowGravityScale;
+
+        // yield return new WaitForSeconds(_lowGravityTimer);
+        // _rb.gravityScale = _normalGravityScale;
+
+        // yield return null;
     }
 
     private void HandleJump()
@@ -162,7 +212,11 @@ public class PlayerMovement : MonoBehaviour
         _jumpToConsume = true;
         if (_canJumpFromPlatform || _coyoteTimeJumpUsable) DoJump();
         else if (!_hasJustJumped) StartCoroutine(HandleJumpBuffer());
-        else Debug.Log("DID NOT DO ANYTHING");
+        else
+        {
+            _jumpToConsume = false;
+            Debug.Log("DID NOT DO ANYTHING");
+        }
     }
 
     private void DoJump()
@@ -170,7 +224,8 @@ public class PlayerMovement : MonoBehaviour
         _rb.gravityScale = _normalGravityScale;
         _rb.velocity = new Vector2(_rb.velocity.x, 0);
 
-        Vector2 jumpDir = new Vector2(IsOnLeftWall ? 1 : (IsOnRightWall ? -1 : 0), 1);
+        Vector2 jumpDir = new Vector2((IsOnLeftWall ? 1 : (IsOnRightWall ? -1 : 0)) * 5, 1);
+        Debug.Log(jumpDir);
 
         _rb.AddForce(jumpDir * _playerJumpForce, ForceMode2D.Impulse);
         _jumpToConsume = false;
@@ -179,6 +234,8 @@ public class PlayerMovement : MonoBehaviour
         StartCoroutine(HandleLowGravityAtJumpPeak());
     }
 
+    #endregion
+    #region Collision Box Collider
     void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.CompareTag("Platform"))
@@ -194,6 +251,17 @@ public class PlayerMovement : MonoBehaviour
             _hasJustJumped = false;
         }
     }
+
+    #endregion
+    #region Sprite
+
+    public void SetSprite(Sprite sprite)
+    {
+        _charaSprite = sprite;
+    }
+
+    #endregion
+    #region Player Input
 
 
     public void OnMove(InputAction.CallbackContext context) // fixed update -> put a bool that allow to know if player is moving or not
@@ -221,7 +289,6 @@ public class PlayerMovement : MonoBehaviour
         if (context.performed)
         {
             Debug.Log("IS USING ATTACK 1");
-            GetComponent<SpriteRenderer>().sprite = _charaSprites[Random.Range(0, _charaSprites.Length)];
         }
     }
 
@@ -232,4 +299,6 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log("IS USING ATTACK 2");
         }
     }
+
+    #endregion
 }
