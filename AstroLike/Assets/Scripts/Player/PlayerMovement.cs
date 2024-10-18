@@ -1,16 +1,12 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Users;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
 public class PlayerMovement : MonoBehaviour
 {
     #region Classic Variables
-    [Header("Sprites")]
-    [SerializeField] private Sprite _charaSprite;
-
 
     private Rigidbody2D _rb;
     private Transform _playerTransform;
@@ -250,14 +246,6 @@ public class PlayerMovement : MonoBehaviour
         {
             _hasJustJumped = false;
         }
-    }
-
-    #endregion
-    #region Sprite
-
-    public void SetSprite(Sprite sprite)
-    {
-        _charaSprite = sprite;
     }
 
     #endregion

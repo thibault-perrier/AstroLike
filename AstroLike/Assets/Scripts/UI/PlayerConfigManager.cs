@@ -29,6 +29,14 @@ public class PlayerConfigManager : MonoBehaviour
     }
 
 
+    public List<PlayerConfig> GetPlayerConfigs()
+    {
+        return _playerConfigs;
+    }
+
+
+
+
     public void SetPlayerSprite(int playerIndex, int spriteIndex)
     {
         _playerConfigs[playerIndex].PlayerSprite = _sprites[spriteIndex];

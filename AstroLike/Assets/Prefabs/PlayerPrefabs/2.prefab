@@ -292,7 +292,7 @@ GameObject:
   - component: {fileID: 330672726081311230}
   - component: {fileID: 8653565557270069220}
   m_Layer: 3
-  m_Name: PlayerUEvents
+  m_Name: 2
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
