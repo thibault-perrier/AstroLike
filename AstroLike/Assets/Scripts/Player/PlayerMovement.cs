@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Player Movement Stats")]
     [SerializeField] private float _playerMovSpeed;
     [SerializeField] private float _playerJumpForce;
-    private float _playerDir = 0.0f;
+    public float _playerDir = 0.0f;
 
     #endregion
     #region Jump Variables
@@ -203,8 +203,9 @@ public class PlayerMovement : MonoBehaviour
         // yield return null;
     }
 
-    private void HandleJump()
+    public void HandleJump()
     {
+        Debug.Log("JUMP PLAYER MOVEMENT IS OK");
         _jumpToConsume = true;
         if (_canJumpFromPlatform || _coyoteTimeJumpUsable) DoJump();
         else if (!_hasJustJumped) StartCoroutine(HandleJumpBuffer());
@@ -224,6 +225,7 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log(jumpDir);
 
         _rb.AddForce(jumpDir * _playerJumpForce, ForceMode2D.Impulse);
+
         _jumpToConsume = false;
         _hasJustJumped = true;
 
@@ -249,43 +251,12 @@ public class PlayerMovement : MonoBehaviour
     }
 
     #endregion
-    #region Player Input
+    #region Link From Player Input Handler
 
 
-    public void OnMove(InputAction.CallbackContext context) // fixed update -> put a bool that allow to know if player is moving or not
+    public void SetPlayerDir(float value) // fixed update -> put a bool that allow to know if player is moving or not
     {
-        if (context.performed)
-        {
-            _playerDir = context.ReadValue<float>().Normalize();
-        }
-        else if (context.canceled)
-        {
-            _playerDir = 0;
-        }
-    }
-
-    public void OnJump(InputAction.CallbackContext context) // make jump -> test if can jump -> is grounded (stays true for .15s after stepping out of a platform) + jump buffer
-    {
-        if (context.performed)
-        {
-            HandleJump();
-        }
-    }
-
-    public void OnAttack1(InputAction.CallbackContext context) // get access to the weapon and use its first attack
-    {
-        if (context.performed)
-        {
-            Debug.Log("IS USING ATTACK 1");
-        }
-    }
-
-    public void OnAttack2(InputAction.CallbackContext context) // get access to the weapon and use its first attack
-    {
-        if (context.performed)
-        {
-            Debug.Log("IS USING ATTACK 2");
-        }
+        _playerDir = value;
     }
 
     #endregion

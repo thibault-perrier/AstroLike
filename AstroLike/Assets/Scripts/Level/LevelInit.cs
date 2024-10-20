@@ -8,19 +8,22 @@ public class LevelInit : MonoBehaviour
 {
 
     [SerializeField] private Transform[] _playerSpawns;
-    [SerializeField] private GameObject _playerPrefab;
 
     void Start()
     {
         List<PlayerConfig> playerConfigs = PlayerConfigManager.Instance.GetPlayerConfigs();
-        Destroy(PlayerConfigManager.Instance.gameObject);
 
         Debug.Log("number of players: " + playerConfigs.Count);
 
         for (int index = 0; index < playerConfigs.Count; index++)
         {
-            GameObject player = Instantiate(_playerPrefab, _playerSpawns[index].position, _playerSpawns[index].rotation, gameObject.transform);
-            player.GetComponent<PlayerInit>().InitializePlayer(playerConfigs[index]);
+            GameObject player = playerConfigs[index].playerTransform.gameObject;
+
+            player.transform.position = _playerSpawns[index].position;
+            player.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+            player.GetComponent<PlayerInputHandler>().enabled = true;
+            player.GetComponent<SpriteRenderer>().enabled = true;
+            player.GetComponent<BoxCollider2D>().enabled = true;
         }
     }
 }

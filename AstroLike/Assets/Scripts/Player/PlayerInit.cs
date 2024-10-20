@@ -12,13 +12,13 @@ public class PlayerInit : MonoBehaviour
 
     public void InitializePlayer(PlayerConfig pc)
     {
-        _playerConfig = pc;
-        GetComponent<SpriteRenderer>().sprite = pc.PlayerSprite;
+        // _playerConfig = pc;
+        // GetComponent<SpriteRenderer>().sprite = pc.PlayerSprite;
 
-        PlayerInput pi = GetComponent<PlayerInput>();
-        pi.actions = pc.Input.actions;
-        pi.defaultControlScheme = pc.Input.defaultControlScheme;
-        pi.neverAutoSwitchControlSchemes = pc.Input.neverAutoSwitchControlSchemes;
+        // PlayerInput pi = GetComponent<PlayerInput>();
+        // pi.actions = pc.Input.actions;
+        // pi.defaultControlScheme = pc.Input.defaultControlScheme;
+        // pi.neverAutoSwitchControlSchemes = pc.Input.neverAutoSwitchControlSchemes;
 
         // _playerConfig.Input.onActionTriggered += Input_onActionTriggered;
     }

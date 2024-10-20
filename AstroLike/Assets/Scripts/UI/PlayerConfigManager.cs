@@ -19,6 +19,7 @@ public class PlayerConfigManager : MonoBehaviour
 
 
     private List<PlayerConfig> _playerConfigs = new List<PlayerConfig>();
+
     void Awake()
     {
         if (Instance == null)
@@ -39,7 +40,9 @@ public class PlayerConfigManager : MonoBehaviour
 
     public void SetPlayerSprite(int playerIndex, int spriteIndex)
     {
-        _playerConfigs[playerIndex].PlayerSprite = _sprites[spriteIndex];
+        Debug.Log("player index: " + playerIndex);
+        Debug.Log("sprite index: " + spriteIndex);
+        _playerConfigs[playerIndex].playerTransform.GetComponent<SpriteRenderer>().sprite = _sprites[spriteIndex];
     }
 
     public void SetPlayerReady(int playerIndex, bool isReady)
@@ -76,11 +79,11 @@ public class PlayerConfig
     {
         Input = pi;
         PlayerIndex = pi.playerIndex;
+        playerTransform = pi.gameObject.transform;
     }
 
-
+    public Transform playerTransform;
     public PlayerInput Input { get; set; }
     public int PlayerIndex { get; set; }
     public bool IsReady { get; set; }
-    public Sprite PlayerSprite { get; set; }
 }
