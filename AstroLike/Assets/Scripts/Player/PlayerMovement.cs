@@ -101,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
         // if (IsOnGround || IsOnLeftWall || IsOnRightWall) _hasJustJumped = false;
 
 
-        XVel = _rb.velocity.x;
+        XVel = _rb.linearVelocity.x;
         _playerRot = _playerTransform.rotation;
 
         if (XVel > 0.0f) _playerRot.y = 0.0f;
@@ -115,7 +115,7 @@ public class PlayerMovement : MonoBehaviour
     {
         // RIGHT / LEFT mov
         float horizontalMov = _playerDir == 0 ? 0.0f : _playerDir * _playerMovSpeed;
-        _rb.velocity = new Vector2(horizontalMov, _rb.velocity.y);
+        _rb.linearVelocity = new Vector2(horizontalMov, _rb.linearVelocity.y);
     }
 
     #region Jump Buffer
@@ -173,7 +173,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (!hasBeenOnLowG || isOnLowG)
             {
-                if (_rb.velocity.y < _maxYVelForZeroG && _rb.velocity.y > -_maxYVelForZeroG)
+                if (_rb.linearVelocity.y < _maxYVelForZeroG && _rb.linearVelocity.y > -_maxYVelForZeroG)
                 {
                     _rb.gravityScale = _lowGravityScale;
 
@@ -222,7 +222,7 @@ public class PlayerMovement : MonoBehaviour
     private void DoJump()
     {
         _rb.gravityScale = _normalGravityScale;
-        _rb.velocity = new Vector2(_rb.velocity.x, 0);
+        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, 0);
 
         Vector2 jumpDir = new Vector2((IsOnLeftWall ? 1 : (IsOnRightWall ? -1 : 0)) * 5, 1);
         Debug.Log(jumpDir);
